@@ -29,7 +29,7 @@ export class UsersService {
       throw new BadRequestException('User exist!');
     }
     // TODO: check exists role
-    const roles = await this.roleRepository.findByIds(userData.roleIds);
+    // const roles = await this.roleRepository.findByIds(userData.roleIds);
 
     const user = await this.userRepository.createUser(userData);
     return UserMapper.toDto(user);

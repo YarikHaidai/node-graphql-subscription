@@ -12,9 +12,10 @@ export class UsersRepository extends Repository<UserEntity> {
     super(UserEntity, dataSource.createEntityManager());
   }
 
-  public async createUser(userData: CreateUserInput): Promise<UserEntity> {
+  public async createUser(userData: CreateUserInput): Promise<UserDto | null> {
     const entity = UserMapper.toCreateEntity(userData);
-    return await this.manager.save(UserEntity, entity);
+    const user = await this.manager.save(UserEntity, entity);
+    return this.findById(user.id);
   }
 
   public async updateUser(userData: UpdateUserInput): Promise<UserDto | null> {

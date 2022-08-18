@@ -3,16 +3,16 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryColumn,
-  UpdateDateColumn
-} from "typeorm";
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Entity("role")
+@Entity('role')
 export class RoleEntity {
-  @PrimaryColumn({ type: 'uuid'})
-  id: number;
+  @PrimaryColumn({ type: 'uuid' })
+  id: string;
 
   @Column({ nullable: false })
-  role: string;
+  name: string;
 
   @CreateDateColumn()
   createdAt: string;

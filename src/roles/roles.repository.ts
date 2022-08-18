@@ -14,4 +14,8 @@ export class RolesRepository extends Repository<RoleEntity> {
       },
     });
   }
+
+  public async findAll(): Promise<RoleEntity[]> {
+    return await this.manager.find(RoleEntity);
+  }
 }

@@ -25,9 +25,8 @@ export class UserEntity {
 
   @ManyToMany(() => RoleEntity, {
     cascade: true,
-    // eager: true,
-    // onDelete: 'CASCADE',
-    // onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   @JoinTable({
     name: 'user_role',

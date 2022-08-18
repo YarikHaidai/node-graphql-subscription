@@ -2,7 +2,7 @@ import { CreateUserInput, DeleteUserInput, UpdateUserInput } from './dto/input';
 import { RolesRepository } from '../roles/roles.repository';
 import { GetUserArgs, GetUsersArgs } from './dto/args';
 import { UsersRepository } from './users.repository';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserMapper } from './users.mapper';
 import { UserDto } from './dto/user.dto';
 
@@ -14,7 +14,6 @@ export class UsersService {
   ) {}
 
   // TODO: add migrations
-  // TODO: add query for list roles
   async findById(userArgs: GetUserArgs): Promise<UserDto> {
     const user = await this.userRepository.findById(userArgs.id);
     return UserMapper.toDto(user);
@@ -25,23 +24,28 @@ export class UsersService {
   }
 
   public async create(userData: CreateUserInput): Promise<UserDto> {
+    const isExistUser = await this.userRepository.findByPhone(userData.phone);
+    if (isExistUser) {
+      throw new BadRequestException('User exist!');
+    }
+
     const roles = await this.roleRepository.findByIds(userData.roleIds);
-    const object = {
-      ...userData,
-      roles,
-    };
-    const user = await this.userRepository.makeUser(object);
+    // TODO: check exists role
+
+    const user = await this.userRepository.createUser(userData);
     return UserMapper.toDto(user);
   }
 
   public async update(updateUserData: UpdateUserInput): Promise<UserDto> {
+    const user = await this.userRepository.findById(updateUserData.id);
+    if (!user) {
+      throw new BadRequestException('User not exist!');
+    }
     const roles = await this.roleRepository.findByIds(updateUserData.roleIds);
-    const object = {
-      ...updateUserData,
-      roles,
-    };
-    const user = await this.userRepository.updateUser(object);
-    return UserMapper.toDto(user);
+    // TODO: check exists role
+    const toUpdate = Object.assign(user, updateUserData);
+    const updatedUser = await this.userRepository.updateUser(toUpdate);
+    return UserMapper.toDto(updatedUser);
   }
 
   public async delete(deleteUserData: DeleteUserInput): Promise<UserDto> {

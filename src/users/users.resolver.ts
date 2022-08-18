@@ -14,7 +14,7 @@ export class UsersResolver {
   }
 
   @Query(() => [User], { name: 'users', nullable: 'items' })
-  getUsers(@Args() getUsersArgs: GetUsersArgs): Promise<User[]> {
+  listUser(@Args() getUsersArgs: GetUsersArgs): Promise<User[]> {
     return this.userService.findUsers(getUsersArgs);
   }
 

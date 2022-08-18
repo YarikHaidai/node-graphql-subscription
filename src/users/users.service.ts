@@ -28,9 +28,8 @@ export class UsersService {
     if (isExistUser) {
       throw new BadRequestException('User exist!');
     }
-
-    const roles = await this.roleRepository.findByIds(userData.roleIds);
     // TODO: check exists role
+    const roles = await this.roleRepository.findByIds(userData.roleIds);
 
     const user = await this.userRepository.createUser(userData);
     return UserMapper.toDto(user);
@@ -41,8 +40,8 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException('User not exist!');
     }
-    const roles = await this.roleRepository.findByIds(updateUserData.roleIds);
     // TODO: check exists role
+    const roles = await this.roleRepository.findByIds(updateUserData.roleIds);
     const toUpdate = Object.assign(user, updateUserData);
     const updatedUser = await this.userRepository.updateUser(toUpdate);
     return UserMapper.toDto(updatedUser);

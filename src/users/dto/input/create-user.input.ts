@@ -1,6 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsArray, IsEmail, IsNotEmpty } from 'class-validator';
-import { RoleEntity } from '../../../roles/role.entity';
+import { IsArray, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
 @InputType()
 export class CreateUserInput {
@@ -17,7 +16,8 @@ export class CreateUserInput {
   @IsNotEmpty()
   phone: string;
 
-  @Field(() => [String])
+  @Field(() => [String], { nullable: true })
   @IsArray()
-  roles?: RoleEntity[];
+  @IsOptional()
+  roleIds?: string[];
 }

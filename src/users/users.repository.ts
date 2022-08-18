@@ -1,9 +1,10 @@
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { GetUsersArgs } from './dto/args';
 import { UserMapper } from './users.mapper';
-import { CreateUserInput } from './dto/input';
+import { CreateUserInput, UpdateUserInput } from './dto/input';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersRepository extends Repository<UserEntity> {
@@ -12,13 +13,25 @@ export class UsersRepository extends Repository<UserEntity> {
   }
 
   public async makeUser(userData: CreateUserInput): Promise<UserEntity> {
+    const user = await this.manager.findOne(UserEntity, {
+      where: { phone: userData.phone },
+    });
+    if (user instanceof UserEntity) {
+      throw new BadRequestException('User exist!');
+    }
     const entity = UserMapper.toCreateEntity(userData);
     return await this.manager.save(UserEntity, entity);
+  }
+
+  public async updateUser(userData: UpdateUserInput): Promise<UserEntity> {
+    delete userData.roleIds;
+    return await this.manager.save(UserEntity, userData);
   }
 
   public async findById(id: string): Promise<UserEntity> {
     const user = await this.manager.findOne(UserEntity, {
       where: { id },
+      relations: ['roles'],
     });
 
     if (!user) {
@@ -28,11 +41,19 @@ export class UsersRepository extends Repository<UserEntity> {
   }
 
   public async findAll(filter: GetUsersArgs): Promise<UserDto[]> {
-    const queryUsers = this.manager.createQueryBuilder();
+    let queryFilter = {};
     if (filter.ids.length) {
-      queryUsers.whereInIds(filter.ids);
+      queryFilter = {
+        where: {
+          id: In(filter.ids),
+        },
+      };
     }
-    const users: UserEntity[] = await queryUsers.getMany();
+    const users = await this.manager.find(UserEntity, {
+      relations: ['roles'],
+      ...queryFilter,
+    });
+
     return users.map((user: UserEntity) => UserMapper.toDto(user));
   }
 

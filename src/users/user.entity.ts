@@ -1,15 +1,17 @@
 import {
   Column,
   CreateDateColumn,
-  Entity, JoinTable, ManyToMany,
+  Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryColumn,
-  UpdateDateColumn
-} from "typeorm";
-import { RoleEntity } from "../roles/role.entity";
+  UpdateDateColumn,
+} from 'typeorm';
+import { RoleEntity } from '../roles/role.entity';
 
-@Entity("user")
+@Entity('user')
 export class UserEntity {
-  @PrimaryColumn({type: 'uuid'})
+  @PrimaryColumn({ type: 'uuid' })
   id: string;
 
   @Column()
@@ -18,16 +20,21 @@ export class UserEntity {
   @Column()
   email: string;
 
-  @Column({ unique: true})
+  @Column({ unique: true })
   phone: string;
 
-  @ManyToMany(() => RoleEntity, {cascade: true})
+  @ManyToMany(() => RoleEntity, {
+    cascade: true,
+    // eager: true,
+    // onDelete: 'CASCADE',
+    // onUpdate: 'CASCADE',
+  })
   @JoinTable({
     name: 'user_role',
-    joinColumn: {name: 'role_id', referencedColumnName: 'id'},
-    inverseJoinColumn: {name: 'user_id', referencedColumnName: 'id'},
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
   })
-  roles: RoleEntity[]
+  roles: RoleEntity[];
 
   @CreateDateColumn()
   createdAt: string;

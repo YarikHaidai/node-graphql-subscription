@@ -4,6 +4,7 @@ import { GetUserArgs, GetUsersArgs } from './dto/args';
 import { UsersRepository } from './users.repository';
 import { Injectable } from '@nestjs/common';
 import { UserMapper } from './users.mapper';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -12,8 +13,8 @@ export class UsersService {
     private roleRepository: RolesRepository,
   ) {}
 
-  // TODO: сделать норм нейминг
   // TODO: add migrations
+  // TODO: add query for list roles
   async findById(userArgs: GetUserArgs): Promise<UserDto> {
     const user = await this.userRepository.findById(userArgs.id);
     return UserMapper.toDto(user);
@@ -24,14 +25,22 @@ export class UsersService {
   }
 
   public async create(userData: CreateUserInput): Promise<UserDto> {
-    const roleIds: string[] = userData.roles.map((role) => role.id);
-    userData.roles = await this.roleRepository.findByIds(roleIds);
-    const user = await this.userRepository.makeUser(userData);
+    const roles = await this.roleRepository.findByIds(userData.roleIds);
+    const object = {
+      ...userData,
+      roles,
+    };
+    const user = await this.userRepository.makeUser(object);
     return UserMapper.toDto(user);
   }
 
   public async update(updateUserData: UpdateUserInput): Promise<UserDto> {
-    const user = await this.userRepository.save(updateUserData);
+    const roles = await this.roleRepository.findByIds(updateUserData.roleIds);
+    const object = {
+      ...updateUserData,
+      roles,
+    };
+    const user = await this.userRepository.updateUser(object);
     return UserMapper.toDto(user);
   }
 

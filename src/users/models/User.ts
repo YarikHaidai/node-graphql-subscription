@@ -1,4 +1,6 @@
-import { Field, ObjectType } from "@nestjs/graphql";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Role } from '../../roles/models/Role';
+import { IsArray } from 'class-validator';
 
 @ObjectType()
 export class User {
@@ -13,6 +15,10 @@ export class User {
 
   @Field()
   phone: string;
+
+  @Field(() => [Role], { nullable: true })
+  @IsArray()
+  roles: Role[];
 
   @Field()
   createdAt: string;

@@ -13,7 +13,6 @@ export class UsersService {
     private roleRepository: RolesRepository,
   ) {}
 
-  // TODO: add migrations
   async findById(userArgs: GetUserArgs): Promise<UserDto> {
     const user = await this.userRepository.findById(userArgs.id);
     return UserMapper.toDto(user);
@@ -28,11 +27,9 @@ export class UsersService {
     if (isExistUser) {
       throw new BadRequestException('User exist!');
     }
-    // TODO: check exists role
-    // const roles = await this.roleRepository.findByIds(userData.roleIds);
+    await this._checkExistRoles(userData.roleIds);
 
-    const user = await this.userRepository.createUser(userData);
-    return UserMapper.toDto(user);
+    return await this.userRepository.createUser(userData);
   }
 
   public async update(updateUserData: UpdateUserInput): Promise<UserDto> {
@@ -40,15 +37,23 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException('User not exist!');
     }
-    // TODO: check exists role
-    const roles = await this.roleRepository.findByIds(updateUserData.roleIds);
+    await this._checkExistRoles(updateUserData.roleIds);
     const toUpdate = Object.assign(user, updateUserData);
-    const updatedUser = await this.userRepository.updateUser(toUpdate);
-    return UserMapper.toDto(updatedUser);
+    return await this.userRepository.updateUser(toUpdate);
   }
 
   public async delete(deleteUserData: DeleteUserInput): Promise<UserDto> {
-    const user = await this.userRepository.deleteById(deleteUserData.id);
-    return UserMapper.toDto(user);
+    return await this.userRepository.deleteById(deleteUserData.id);
+  }
+
+  private async _checkExistRoles(inputRoleIds: string[]): Promise<void> {
+    const roles = await this.roleRepository.findByIds(inputRoleIds);
+    const roleIds = roles.map((role) => role.id);
+    const notExistRoles = inputRoleIds.filter((id) => !roleIds.includes(id));
+    if (notExistRoles.length) {
+      throw new BadRequestException(
+        `Roles with ids do not exist: ${notExistRoles.join()}`,
+      );
+    }
   }
 }

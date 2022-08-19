@@ -32,11 +32,11 @@ export class UsersRepository extends Repository<UserEntity> {
     return user ? UserMapper.toDto(user) : null;
   }
 
-  public async findByPhone(phone: string): Promise<UserEntity | null> {
+  public async findByPhone(phone: string): Promise<UserDto | null> {
     const user = await this.manager.findOne(UserEntity, {
       where: { phone },
     });
-    return user ? user : null;
+    return user ? UserMapper.toDto(user) : null;
   }
 
   public async findAll(filter: GetUsersArgs): Promise<UserDto[]> {
@@ -56,11 +56,11 @@ export class UsersRepository extends Repository<UserEntity> {
     return users.map((user: UserEntity) => UserMapper.toDto(user));
   }
 
-  public async deleteById(id: string): Promise<UserEntity> {
+  public async deleteById(id: string): Promise<UserDto | null> {
     const user = this.findById(id);
     await this.manager.delete(UserEntity, {
       where: { id },
     });
-    return user;
+    return user ? user : null;
   }
 }
